@@ -1,0 +1,24 @@
+name: Sync Sleeper player reference
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '43 9 * * 2'
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm install --ignore-scripts
+      - name: Enrich Sleeper player IDs
+        run: npm run sync:players
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
