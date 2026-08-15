@@ -20,5 +20,5 @@ const rows = Object.entries(players).map(([player_id, p]) => ({
   source_payload: p,
   updated_at: new Date().toISOString()
 }));
-await upsertChunked(client, 'players', rows, { onConflict: 'player_id', chunkSize: 250 });
+await upsertChunked(client, 'players', rows, { onConflict: 'player_id', chunkSize: 250, maxRetries: 4 });
 console.log(`Synced ${rows.length} NFL player records from Sleeper.`);

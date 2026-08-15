@@ -1,45 +1,13 @@
 {
-  "version": "0.3.0",
-  "architecture": "GitHub + Cloudflare Pages + Supabase/Postgres + Sleeper API",
-  "domain": "piudileague.com",
-  "github": "CrawfordJoel/piudileague",
-  "historical_summary": {
-    "2025": {
-      "league_id": "1187937743145697280",
-      "status": "complete",
-      "users": 10,
-      "rosters": 10,
-      "matchup_rows": 180,
-      "transaction_rows": 295,
-      "drafts": 2,
-      "draft_picks": 350,
-      "traded_picks": 9,
-      "winner_bracket_games": 7,
-      "loser_bracket_games": 4
-    },
-    "2026": {
-      "league_id": "1313002588936880128",
-      "status": "in_season",
-      "users": 10,
-      "rosters": 10,
-      "matchup_rows": 180,
-      "transaction_rows": 96,
-      "drafts": 1,
-      "draft_picks": 40,
-      "traded_picks": 14,
-      "winner_bracket_games": 7,
-      "loser_bracket_games": 4
-    }
-  },
-  "production_components": [
-    "supabase/migrations/20260814220000_initial_piudi_schema.sql",
-    "scripts/import-history.mjs",
-    "scripts/sync-sleeper.mjs",
-    "scripts/sync-players.mjs",
-    "scripts/verify-data.mjs",
-    ".github/workflows/sleeper-sync.yml",
-    ".github/workflows/player-sync.yml",
-    "wrangler.toml",
-    "PRODUCTION_SETUP.md"
+  "version": "0.4.0",
+  "purpose": "Live Supabase-backed public archive foundation",
+  "current_season": 2026,
+  "completed_seasons": [2025],
+  "live_pages": ["home", "season pages", "manager directory", "manager profiles", "waiver wire", "transactions"],
+  "security": "public browser uses anon key and read-only RLS; service-role key remains server-side",
+  "notes": [
+    "Static HTML remains as fallback",
+    "Player sync includes retries",
+    "Data scripts load .env automatically"
   ]
 }

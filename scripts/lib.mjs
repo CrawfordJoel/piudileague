@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { createClient } from '@supabase/supabase-js';
 
 export function requiredEnv(name) {
@@ -23,13 +24,36 @@ export function score(settings, wholeKey, decimalKey) {
   return Number((whole + decimal / 100).toFixed(2));
 }
 
-export async function upsertChunked(client, table, rows, { onConflict, chunkSize = 500 } = {}) {
+export async function upsertChunked(client, table, rows, { onConflict, chunkSize = 100, maxRetries = 4 } = {}) {
   if (!rows.length) return;
   for (let i = 0; i < rows.length; i += chunkSize) {
     const chunk = rows.slice(i, i + chunkSize);
     const options = onConflict ? { onConflict } : undefined;
-    const { error } = await client.from(table).upsert(chunk, options);
-    if (error) throw new Error(`${table} upsert failed: ${error.message}`);
+    let lastError = null;
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        const { error } = await client.from(table).upsert(chunk, options);
+        if (!error) {
+          console.log(`${table}: ${Math.min(i + chunk.length, rows.length)}/${rows.length}`);
+          lastError = null;
+          break;
+        }
+        lastError = error;
+      } catch (error) {
+        lastError = error;
+      }
+
+      if (attempt < maxRetries) {
+        const delayMs = 1000 * attempt;
+        console.log(`${table}: batch failed, retry ${attempt}/${maxRetries} in ${delayMs}ms`);
+        await new Promise(resolve => setTimeout(resolve, delayMs));
+      }
+    }
+
+    if (lastError) {
+      throw new Error(`${table} upsert failed after ${maxRetries} attempts: ${lastError.message ?? lastError}`);
+    }
   }
 }
 
@@ -42,10 +66,7 @@ export async function replaceAssets(client, transactionIds, rows) {
     }
   }
   if (rows.length) {
-    for (let i = 0; i < rows.length; i += 500) {
-      const { error } = await client.from('transaction_assets').insert(rows.slice(i, i + 500));
-      if (error) throw new Error(`transaction_assets insert failed: ${error.message}`);
-    }
+    await upsertChunked(client, 'transaction_assets', rows, { chunkSize: 100, maxRetries: 4 });
   }
 }
 

@@ -1,17 +1,19 @@
 {
   "name": "piudileague",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
-  "description": "Production data architecture and public archive for the Platinum Infinite Universal Dynasty Invitational",
+  "description": "Production archive and public website for the Platinum Infinite Universal Dynasty Invitational",
   "type": "module",
   "scripts": {
+    "build": "node scripts/build-site.mjs",
     "import:history": "node scripts/import-history.mjs",
     "sync:sleeper": "node scripts/sync-sleeper.mjs",
     "sync:players": "node scripts/sync-players.mjs",
     "verify:data": "node scripts/verify-data.mjs"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.0.0"
+    "@supabase/supabase-js": "^2.0.0",
+    "dotenv": "^16.4.5"
   },
   "engines": {
     "node": ">=20"
